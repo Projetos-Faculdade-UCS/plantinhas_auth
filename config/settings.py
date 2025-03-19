@@ -26,6 +26,8 @@ env = environ.Env(
         str,
         "django-insecure-$227hjjmuq2e!)o^@2&#2v#+(-=@$v362o@8g#s9!2)tjn1)1a",
     ),
+    GOOGLE_OAUTH_WEB_CLIENT_ID=(str, ""),
+    GOOGLE_OAUTH_ALLOWED_DOMAIN=(str, None),
 )
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -98,7 +100,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = {"default": env.db("DATABASE_URL", default="sqlite:///db.sqlite3")}
+DATABASES = {"default": env.db("DATABASE_URL", default="sqlite:///db.sqlite3")}  # type: ignore
 
 
 # Password validation
@@ -147,12 +149,18 @@ DEBUG = env("DEBUG")
 ### --- SENTRY SETTINGS --- ###
 if not DEBUG:
     sentry_sdk.init(
-        dsn=env("SENTRY_DSN", default=None),
+        dsn=env.str("SENTRY_DSN", default=None),  # type: ignore
         integrations=[
             DjangoIntegration(),
         ],
         traces_sample_rate=0.5,
         send_default_pii=False,
     )
+
+# Google OAuth Settings
+GOOGLE_OAUTH = {
+    "WEB_CLIENT_ID": env("GOOGLE_OAUTH_WEB_CLIENT_ID"),
+    "ALLOWED_DOMAIN": env("GOOGLE_OAUTH_ALLOWED_DOMAIN") or None,
+}
 
 APPEND_SLASH = False

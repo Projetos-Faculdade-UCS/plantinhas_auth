@@ -142,7 +142,7 @@ DEBUG = True
 ### --- SENTRY SETTINGS --- ###
 if not DEBUG:
     sentry_sdk.init(
-        dsn=os.environ("SENTRY_DSN"),
+        dsn=os.environ.get("SENTRY_DSN"),
         integrations=[
             DjangoIntegration(),
         ],

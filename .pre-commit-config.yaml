@@ -44,14 +44,14 @@ repos:
       language: python
 
 # Codespell for spell checking
-# - repo: https://github.com/codespell-project/codespell
-#   rev: v2.2.4
-#   hooks:
-#   - id: codespell
-#     exclude: >
-#       (?x)^(
-#           .*\test_*.py
-#       )$
+- repo: https://github.com/codespell-project/codespell
+  rev: v2.2.4
+  hooks:
+  - id: codespell
+    exclude: >
+      (?x)^(
+          .*\test_*.py
+      )$
 
 # Pytest for testing
 # - repo: local

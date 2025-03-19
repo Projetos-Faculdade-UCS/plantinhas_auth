@@ -13,20 +13,34 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 import os
 from pathlib import Path
 
+import environ
 import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
+
+# Initialize environ
+env = environ.Env(
+    # Set default values
+    DEBUG=(bool, False),
+    ALLOWED_HOSTS=(list, []),
+    SECRET_KEY=(
+        str,
+        "django-insecure-$227hjjmuq2e!)o^@2&#2v#+(-=@$v362o@8g#s9!2)tjn1)1a",
+    ),
+)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Read .env file if it exists
+environ.Env.read_env(os.path.join(BASE_DIR, ".env"))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-$227hjjmuq2e!)o^@2&#2v#+(-=@$v362o@8g#s9!2)tjn1)1a"
+SECRET_KEY = env("SECRET_KEY")
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = env("ALLOWED_HOSTS")
 
 DEFAULT_APPS = [
     "django.contrib.admin",
@@ -84,16 +98,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": "your-db-name",
-        "USER": "your-db-user",
-        "PASSWORD": "your-db-user-password",
-        "HOST": "your-db-host",
-        "PORT": "your-db-port",
-    }
-}
+DATABASES = {"default": env.db("DATABASE_URL", default="sqlite:///db.sqlite3")}
 
 
 # Password validation
@@ -137,12 +142,12 @@ STATIC_URL = "static/"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-DEBUG = True
+DEBUG = env("DEBUG")
 
 ### --- SENTRY SETTINGS --- ###
 if not DEBUG:
     sentry_sdk.init(
-        dsn=os.environ.get("SENTRY_DSN"),
+        dsn=env("SENTRY_DSN", default=None),
         integrations=[
             DjangoIntegration(),
         ],

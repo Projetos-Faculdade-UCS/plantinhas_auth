@@ -1,10 +1,11 @@
-# Your services go here
-
 from typing import Any
 from typing import Dict
 from typing import Optional
+from typing import Tuple
+from typing import cast
 
 from django.conf import settings
+from django.contrib.auth.models import User
 
 from google.auth.transport import requests
 from google.oauth2 import id_token
@@ -56,6 +57,42 @@ class GoogleOAuthService:
             # Invalid token
             print(f"Token validation error: {e}")
             return None
+
+    @classmethod
+    def get_or_create_user_from_google_info(
+        cls, user_info: Dict[str, Any]
+    ) -> Tuple[User, bool]:
+        """
+        Get or create a user from Google OAuth information.
+
+        Args:
+            user_info: Dictionary with user information from Google OAuth
+
+        Returns:
+            Tuple of (User object, created)
+        """
+        email = user_info.get("email")
+        if not email:
+            raise ValueError("Email not provided by Google")
+
+        # Try to find an existing user or create a new one
+        user, created = User.objects.get_or_create(
+            email=email,
+            defaults={
+                "username": email,  # Using email as username
+                "first_name": user_info.get("given_name", ""),
+                "last_name": user_info.get("family_name", ""),
+            },
+        )
+
+        # Update profile picture if available
+        if user_info.get("picture") and hasattr(user, "profile"):
+            user.profile.profile_picture = cast(str, user_info.get("picture")).replace(  # type: ignore
+                "s96-c", "s512-c"
+            )
+            user.profile.save()  # type: ignore
+
+        return user, created
 
 
 class NotVerifiedEmailError(Exception):

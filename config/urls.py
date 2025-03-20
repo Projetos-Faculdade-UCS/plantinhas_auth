@@ -6,5 +6,5 @@ urlpatterns = [
     # Admin
     path("admin/", admin.site.urls),
     path("", include("apps.core.urls")),
-    path("auth", include("apps.auth.urls")),
+    path("auth/", include("apps.authentication.urls")),  # Added trailing slash
 ]

@@ -15,8 +15,6 @@ class GoogleOAuthService:
     WEB_CLIENT_ID = settings.GOOGLE_OAUTH.get("WEB_CLIENT_ID")
     # Add more client IDs if needed
     ALLOWED_CLIENT_IDS = [WEB_CLIENT_ID]
-    # Optional: specify allowed domain
-    ALLOWED_DOMAIN = settings.GOOGLE_OAUTH.get("ALLOWED_DOMAIN")
 
     @classmethod
     def verify_google_token(cls, token: str) -> Optional[Dict[str, Any]]:
@@ -30,19 +28,17 @@ class GoogleOAuthService:
             Dictionary with user information or None if verification fails
         """
         try:
+            print("Validating token")
             # Verify the token
-            idinfo = id_token.verify_oauth2_token(
-                token, requests.Request(), cls.WEB_CLIENT_ID
+            idinfo: dict[str, Any] = id_token.verify_oauth2_token(
+                token,
+                requests.Request(),  # cls.WEB_CLIENT_ID
             )
+            print(idinfo)
 
-            # If you have multiple client IDs, use this approach instead:
-            # idinfo = id_token.verify_oauth2_token(token, requests.Request())
-            # if idinfo['aud'] not in cls.ALLOWED_CLIENT_IDS:
-            #     raise ValueError('Could not verify audience.')
-
-            # Check domain if specified
-            if cls.ALLOWED_DOMAIN and idinfo.get("hd") != cls.ALLOWED_DOMAIN:
-                raise ValueError("Wrong domain name.")
+            # If email is not verified, throw exception
+            if not idinfo.get("email_verified", False):
+                raise NotVerifiedEmailError("Email not verified")
 
             # Return relevant user information
             return {
@@ -60,3 +56,7 @@ class GoogleOAuthService:
             # Invalid token
             print(f"Token validation error: {e}")
             return None
+
+
+class NotVerifiedEmailError(Exception):
+    """Custom exception for unverified email addresses."""

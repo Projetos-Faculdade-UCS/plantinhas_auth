@@ -21,6 +21,8 @@ class GoogleAuthSerializer(serializers.Serializer):
     def create(self, validated_data):
         token = validated_data.get("token")
         user_info = GoogleOAuthService.verify_google_token(token)
+        if not user_info:
+            raise serializers.ValidationError("Invalid Google token")
         user, _ = GoogleOAuthService.get_or_create_user_from_google_info(user_info)
 
         # Generate JWT tokens

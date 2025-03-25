@@ -60,6 +60,7 @@ THIRD_PARTY_APPS = [
     "corsheaders",
     "storages",
     "django_filters",
+    "django_extensions",
 ]
 
 SELF_APPS = [

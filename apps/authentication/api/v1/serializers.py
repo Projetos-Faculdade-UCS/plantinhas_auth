@@ -31,4 +31,5 @@ class GoogleAuthSerializer(serializers.Serializer):
         return {
             "refresh": str(refresh),
             "access": str(refresh.access_token),
+            "exp": refresh.access_token["exp"],
         }

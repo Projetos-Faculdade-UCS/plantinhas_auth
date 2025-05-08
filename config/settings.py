@@ -175,15 +175,32 @@ REST_FRAMEWORK = {
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
 }
 
+JWT_SIGNING_KEY = env("JWT_SIGNING_KEY")
+JWT_VERIFYING_KEY = env("JWT_VERIFYING_KEY")
+
+
+if (
+    not JWT_SIGNING_KEY
+    or not JWT_VERIFYING_KEY
+    or not isinstance(JWT_SIGNING_KEY, str)
+    or not isinstance(JWT_VERIFYING_KEY, str)
+):
+    raise ValueError(
+        "JWT_SIGNING_KEY and JWT_VERIFYING_KEY must be set in the environment variables."
+    )
+
+JWT_SIGNING_KEY = JWT_SIGNING_KEY.replace("\\n", "\n")
+JWT_VERIFYING_KEY = JWT_VERIFYING_KEY.replace("\\n", "\n")
+
 # JWT settings
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
     "ROTATE_REFRESH_TOKENS": False,
     "BLACKLIST_AFTER_ROTATION": True,
-    "ALGORITHM": "HS256",
-    "SIGNING_KEY": SECRET_KEY,
-    "VERIFYING_KEY": None,
+    "ALGORITHM": "RS256",
+    "SIGNING_KEY": JWT_SIGNING_KEY,
+    "VERIFYING_KEY": JWT_VERIFYING_KEY,
     "AUTH_HEADER_TYPES": ("Bearer",),
     "USER_ID_FIELD": "id",
     "USER_ID_CLAIM": "user_id",

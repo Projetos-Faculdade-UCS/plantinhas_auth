@@ -155,3 +155,7 @@ cython_debug/
 
 # Visual Studio Code
 .vscode
+private_key_oneline.txt
+private.key
+public_key_oneline.txt
+public.key
